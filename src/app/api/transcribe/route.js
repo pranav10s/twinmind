@@ -10,19 +10,25 @@ export async function POST(request) {
       return Response.json({ error: 'Missing audio or API key' }, { status: 400 });
     }
 
-    const groq = new Groq({ apiKey });
+    const arrayBuffer = await audio.arrayBuffer();
+    
+    if (arrayBuffer.byteLength < 1000) {
+      return Response.json({ text: '' });
+    }
 
-    const file = new File([audio], 'audio.wav', { type: 'audio/wav' });
+    const groq = new Groq({ apiKey });
+    const file = new File([arrayBuffer], 'audio.webm', { type: 'audio/webm' });
 
     const transcription = await groq.audio.transcriptions.create({
       file,
-      model: 'whisper-large-v3',
+      model: 'whisper-large-v3-turbo',
       response_format: 'text',
+      language: 'en',
     });
 
     return Response.json({ text: transcription });
   } catch (error) {
     console.error('Transcription error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ text: '' });
   }
 }
