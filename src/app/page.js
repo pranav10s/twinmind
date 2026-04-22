@@ -214,16 +214,7 @@ export default function Home() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.onstop = async () => {
         const updatedChunks = await processAudioChunk();
-        // Wait for any ongoing suggestion refresh to finish
-        const waitForIdle = () => new Promise(resolve => {
-          const check = setInterval(() => {
-            if (!isLoadingSuggestionsRef.current) {
-              clearInterval(check);
-              resolve();
-            }
-          }, 200);
-        });
-        await waitForIdle();
+        await new Promise(resolve => setTimeout(resolve, 2000));
         await doRefreshSuggestions(updatedChunks);
       };
       mediaRecorderRef.current.stop();
