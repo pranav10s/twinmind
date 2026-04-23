@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 function typeLabel(type) {
   const map = {
     'question': 'Question to Ask',
@@ -62,15 +64,41 @@ export default function SuggestionsPanel({
   status,
   onRefresh,
   onTap,
+  refreshInterval,
+  isRecording,
 }) {
+  const [countdown, setCountdown] = useState(refreshInterval || 30);
+
+  useEffect(() => {
+    if (!isRecording) {
+      setCountdown(refreshInterval || 30);
+      return;
+    }
+
+    setCountdown(refreshInterval || 30);
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) return refreshInterval || 30;
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRecording, refreshInterval, suggestionBatches]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/7">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">
           Live Suggestions
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
+          {isRecording && !isLoading && (
+            <span className="font-mono text-xs text-gray-600">
+              auto-refresh in {countdown}s
+            </span>
+          )}
           {isLoading && (
             <div className="w-3 h-3 border-2 border-white/10 border-t-blue-500 rounded-full animate-spin" />
           )}
@@ -92,7 +120,7 @@ export default function SuggestionsPanel({
             <span className="text-3xl opacity-40">✦</span>
             <p className="text-sm font-medium text-gray-400">No suggestions yet</p>
             <p className="text-xs text-gray-600 max-w-[200px]">
-              Suggestions appear automatically every 30s, or tap ↺ to generate now
+              Suggestions appear automatically every {refreshInterval || 30}s, or tap ↺ to generate now
             </p>
           </div>
         )}
@@ -109,7 +137,7 @@ export default function SuggestionsPanel({
       </div>
 
       {/* Status bar */}
-      <div className="px-4 py-2 border-t border-white/7">
+      <div className="px-4 py-2 border-t border-white/10">
         <span className="font-mono text-xs text-gray-600">{status || 'Ready'}</span>
       </div>
     </div>

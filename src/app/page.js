@@ -385,6 +385,8 @@ export default function Home() {
             status={sugStatus}
             onRefresh={handleManualRefresh}
             onTap={handleSuggestionTap}
+            refreshInterval={settings.refreshInterval}
+            isRecording={isRecording}
           />
         </div>
         <div className="w-1/3 overflow-hidden">
