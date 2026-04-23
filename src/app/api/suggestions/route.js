@@ -29,6 +29,9 @@ export async function POST(request) {
     return Response.json({ suggestions: parsed.suggestions });
   } catch (error) {
     console.error('Suggestions error:', error);
+    if (error.message?.includes('429')) {
+      return Response.json({ error: 'Rate limit hit — please wait a moment' }, { status: 429 });
+    }
     return Response.json({ error: error.message }, { status: 500 });
   }
 }

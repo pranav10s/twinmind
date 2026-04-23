@@ -86,8 +86,11 @@ export default function SuggestionsPanel({
     return () => clearInterval(interval);
   }, [isRecording, refreshInterval, suggestionBatches]);
 
+  const isRateLimit = status?.includes('429') || status?.includes('Rate limit') || status?.includes('rate limit');
+
   return (
     <div className="flex flex-col h-full">
+
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">
@@ -138,8 +141,13 @@ export default function SuggestionsPanel({
 
       {/* Status bar */}
       <div className="px-4 py-2 border-t border-white/10">
-        <span className="font-mono text-xs text-gray-600">{status || 'Ready'}</span>
+        <span className={`font-mono text-xs ${isRateLimit ? 'text-amber-400' : 'text-gray-600'}`}>
+          {isRateLimit
+            ? '⚠ Rate limit hit — please wait a few seconds'
+            : status || 'Ready'}
+        </span>
       </div>
+
     </div>
   );
 }

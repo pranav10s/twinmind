@@ -44,6 +44,9 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Chat error:', error);
+    if (error.message?.includes('429')) {
+      return new Response('Rate limit hit — please wait a moment and try again.', { status: 429 });
+    }
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
